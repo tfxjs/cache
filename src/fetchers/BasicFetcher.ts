@@ -1,6 +1,6 @@
-import { FetchStrategy } from '@src/types';
+import { TFetchStrategy } from '@src/types';
 
-export default class BasicFetcher<T> implements FetchStrategy<T> {
+export default class BasicFetcher<T> implements TFetchStrategy<T> {
 	private values: Map<string, T | null> = new Map();
 
 	setReturnValue(id: string, value: T | null): void {

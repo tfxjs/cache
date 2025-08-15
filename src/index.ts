@@ -1,3 +1,11 @@
-import LRUCache from '@src/strategies/LRU.cache';
+import {
+	CreateStandardCache,
+	CreateStandardLRUCache,
+    CreateFetchableLRUCache
+} from "@src/cache";
 
-export { LRUCache };
+export {
+    CreateStandardCache,
+    CreateStandardLRUCache,
+    CreateFetchableLRUCache
+}

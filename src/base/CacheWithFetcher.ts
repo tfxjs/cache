@@ -1,78 +1,15 @@
-import { Cache, CacheItem, CacheOptions, FetchStrategy } from '@src/types';
+import { TCacheOptions, TCacheStrategy, TFetchStrategy } from '@src/types';
+import { Cache } from '@src/base/Cache';
+import BaseCache from '@src/strategies/Base.strategy';
+import BasicFetcher from '@src/fetchers/BasicFetcher';
 
-export abstract class CacheWithFetcher<ItemType> implements Cache<ItemType> {
-	protected cache: Map<string, CacheItem<ItemType>> = new Map();
-	private maxSize: number;
-	private ttl: number;
-
-	private cleanup: NodeJS.Timeout | null = null;
-	private cleanupInterval: number;
-	private disposed: boolean = false;
-
+export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 	constructor(
-		options: CacheOptions,
-		protected fetchStrategy: FetchStrategy<ItemType> | null
+		options: TCacheOptions,
+		protected strategy: TCacheStrategy<ItemType> = new BaseCache<ItemType>(),
+		protected fetchStrategy: TFetchStrategy<ItemType> = new BasicFetcher<ItemType>()
 	) {
-		this.maxSize = options.maxSize != undefined ? options.maxSize : Infinity;
-		this.ttl = options.ttl != undefined ? options.ttl : 0;
-		this.cleanupInterval = options.cleanupInterval != undefined ? options.cleanupInterval : 0;
-
-		if (this.maxSize <= 0) throw new Error('Max size must be greater than 0');
-		if (this.ttl <= 0) throw new Error('TTL must be greater than 0');
-		if (this.cleanupInterval < 0) throw new Error('Cleanup interval must be greater than or equal to 0');
-
-		if (this.cleanupInterval > 0) {
-			this.cleanup = setInterval(() => this.removeExpiredItems(), this.cleanupInterval * 1000);
-		}
-	}
-
-	get Capacity(): number {
-		return this.maxSize;
-	}
-
-	get Size(): number {
-		return this.cache.size;
-	}
-
-	get TimeToLive(): number {
-		return this.ttl;
-	}
-
-	get CleanupInterval(): number {
-		return this.cleanupInterval;
-	}
-
-	get Disposed(): boolean {
-		return this.disposed;
-	}
-
-	protected abstract getCacheItem(key: string): Promise<ItemType | null>;
-	protected abstract evict(): void;
-
-	/**
-	 * Check if the cache item is expired
-	 * @param item Cache item
-	 * @returns True if the item is expired
-	 */
-	private isExpired(key: string): boolean {
-		const item = this.cache.get(key);
-		return item !== undefined && this.ttl > 0 && Date.now() > item.expiry;
-	}
-
-	/**
-	 * Get the cache item
-	 * @param key Key of the cache item
-	 * @returns Cache item or null if not found or expired
-	 */
-	async getFromCache(key: string): Promise<ItemType | null> {
-		if (this.disposed) return null;
-
-		if (this.isExpired(key)) {
-			this.cache.delete(key);
-		}
-
-		const item = await this.getCacheItem(key);
-		return item;
+		super(options, strategy);
 	}
 
 	/**
@@ -88,12 +25,13 @@ export abstract class CacheWithFetcher<ItemType> implements Cache<ItemType> {
 		return this.fetchItem(key);
 	}
 
+	/**
+	 * Fetch an item from the source
+	 * @param key Key of the item to fetch
+	 * @returns Fetched item or null if not found
+	 */
 	private async fetchItem(key: string): Promise<ItemType | null> {
-		if (this.disposed) return null;
-
-		if (this.fetchStrategy === null) {
-			return null;
-		}
+		if (this.Disposed) return null;
 
 		const value = await this.fetchStrategy.fetch(key);
 		if (value !== null) {
@@ -102,47 +40,5 @@ export abstract class CacheWithFetcher<ItemType> implements Cache<ItemType> {
 		}
 
 		return null;
-	}
-
-	protected setCacheItem(key: string, value: ItemType, options: CacheOptions = {}): void {
-		if (this.disposed) return;
-
-		const ttl = options.ttl !== undefined ? options.ttl : this.ttl;
-		const expiry = ttl > 0 ? Date.now() + ttl * 1000 : Infinity;
-
-		// Evict the item (defined by strategy) if the cache is full
-		if (this.cache.size >= this.maxSize) {
-			this.evict();
-		}
-
-		this.cache.set(key, { value, expiry });
-	}
-
-	protected clear(): void {
-		if (this.disposed) return;
-
-		this.cache.clear();
-		if (this.cleanup) clearInterval(this.cleanup);
-		this.cleanup = setInterval(() => this.removeExpiredItems(), this.cleanupInterval * 1000);
-	}
-
-	public dispose(): void {
-		if (this.disposed) return;
-
-		if (this.cleanup) {
-			clearInterval(this.cleanup);
-			this.cleanup = null;
-		}
-		this.disposed = true;
-	}
-
-	protected removeExpiredItems(): void {
-		if (this.disposed) return;
-
-		for (const [key, _] of this.cache.entries()) {
-			if (this.isExpired(key)) {
-				this.cache.delete(key);
-			}
-		}
 	}
 }
