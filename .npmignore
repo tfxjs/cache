@@ -1,0 +1,23 @@
+# Directories
+.vscode
+node_modules
+src
+local
+tests
+
+# Files
+*.ts
+
+# Configs
+.git
+.gitignore
+
+.eslintrc.json
+.prettierrc
+
+.env
+tsconfig.json
+tsup.config.ts
+jest.config.js
+
+yarn.lock

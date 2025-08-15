@@ -1,0 +1,36 @@
+{
+	"name": "@tfxjs/cache",
+	"version": "1.0.0",
+    "type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"private": false,
+	"author": "kajahl",
+	"homepage": "https://github.com/tfxjs/cache",
+	"license": "MIT",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"test": "jest",
+		"lint": "eslint \"src/**/*.ts\"",
+		"prettier": "prettier --write .",
+		"prettier:check": "prettier --check .",
+		"build": "tsup",
+		"prepublishOnly": "npm run build",
+		"linklocal": "npm unlink --global && npm run build && npm link"
+	},
+	"devDependencies": {
+		"@types/jest": "^30.0.0",
+		"@types/node": "^24.2.1",
+		"eslint": "^9.33.0",
+		"jest": "^30.0.5",
+		"prettier": "^3.6.2",
+		"ts-jest": "^29.4.1",
+		"ts-node": "^10.9.2",
+		"tsup": "^8.5.0",
+		"typescript": "^5.9.2",
+		"typescript-eslint": "^8.39.1"
+	}
+}
