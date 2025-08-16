@@ -30,6 +30,46 @@ describe('Fetchable Cache', () => {
 		cache.dispose();
 	});
 
+	describe('cache events', () => {
+		let strategy: BaseStrategy<string>;
+		let fetcher: BasicFetcher<string>;
+		let cache: CacheWithFetcher<string>;
+
+		beforeEach(() => {
+			strategy = new BaseStrategy<string>();
+			fetcher = new BasicFetcher<string>();
+			cache = CreateFetchableCache<string>(
+				{
+					maxSize: 3,
+					ttl: 2000,
+					cleanupInterval: 3000,
+				},
+				strategy,
+				fetcher
+			);
+
+			jest.spyOn(strategy, 'onItemFetched');
+		});
+
+		afterEach(() => {
+			cache.dispose();
+		});
+
+		it('should emit an event when an item is fetched', async () => {
+			const key = 'key1';
+			const value = 'value1';
+			fetcher.setReturnValue(key, value);
+			await cache.getOrFetch(key);
+			expect(strategy.onItemFetched).toHaveBeenCalledWith(expect.objectContaining({
+				key: key,
+				item: expect.objectContaining({
+					value: value,
+					expiry: expect.any(Number),
+				}),
+			}));
+		});
+	});
+
 	describe('fetching', () => {
 		it('should try to fetch value if not in cache', async () => {
 			const value = await cache.getOrFetch('key1');

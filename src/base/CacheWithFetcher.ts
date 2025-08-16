@@ -1,4 +1,4 @@
-import { TCacheOptions, TCacheStrategy, TFetchStrategy } from '@src/types';
+import { CacheEvent, TCacheOptions, TCacheStrategy, TFetchStrategy } from '@src/types';
 import { Cache } from '@src/base/Cache';
 import BaseCache from '@src/strategies/Base.strategy';
 import BasicFetcher from '@src/fetchers/BasicFetcher';
@@ -11,6 +11,8 @@ export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 	) {
 		super(options, strategy);
 	}
+
+	// Fetching
 
 	/**
 	 * Get the cache item or fetch it if not found
@@ -35,7 +37,15 @@ export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 
 		const value = await this.fetchStrategy.fetch(key);
 		if (value !== null) {
-			this.setCacheItem(key, value);
+			const item = this.convertToCacheItem(key, value);
+			this.cache.set(key, item);
+			
+			this.emitEvent(CacheEvent.ITEM_FETCHED, {
+				key,
+				item,
+				ttl: this.TimeToLive,
+				currentSize: this.Size
+			});
 			return value;
 		}
 
