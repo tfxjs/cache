@@ -60,13 +60,15 @@ describe('Fetchable Cache', () => {
 			const value = 'value1';
 			fetcher.setReturnValue(key, value);
 			await cache.getOrFetch(key);
-			expect(strategy.onItemFetched).toHaveBeenCalledWith(expect.objectContaining({
-				key: key,
-				item: expect.objectContaining({
-					value: value,
-					expiry: expect.any(Number),
-				}),
-			}));
+			expect(strategy.onItemFetched).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key,
+					item: expect.objectContaining({
+						value: value,
+						expiry: expect.any(Number),
+					}),
+				})
+			);
 		});
 	});
 

@@ -159,10 +159,12 @@ describe('Standard Cache', () => {
 			const currentTime = Date.now();
 			const ttl = 2000;
 			const cacheItem = cache['convertToCacheItem'](key, value, ttl);
-			expect(cacheItem).toStrictEqual(expect.objectContaining({
-				value: value,
-				expiry: expect.closeTo(currentTime + ttl)
-			}));
+			expect(cacheItem).toStrictEqual(
+				expect.objectContaining({
+					value: value,
+					expiry: expect.closeTo(currentTime + ttl),
+				})
+			);
 		});
 	});
 
@@ -185,7 +187,8 @@ describe('Standard Cache', () => {
 					maxSize: 3,
 					ttl,
 					cleanupInterval,
-				}, strategy
+				},
+				strategy
 			);
 
 			jest.spyOn(strategy, 'onItemAdded');
@@ -204,41 +207,47 @@ describe('Standard Cache', () => {
 			const key = 'key1';
 			const value = 'value1';
 			cache.setCacheItem(key, value);
-			expect(strategy.onItemAdded).toHaveBeenCalledWith(expect.objectContaining({
-				key: key,
-				ttl: ttl,
-				currentSize: 1,
-				item: expect.objectContaining({ 
-					value: value,
-					expiry: expect.any(Number)
+			expect(strategy.onItemAdded).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key,
+					ttl: ttl,
+					currentSize: 1,
+					item: expect.objectContaining({
+						value: value,
+						expiry: expect.any(Number),
+					}),
 				})
-			}));
+			);
 		});
 
 		it('should emit an event when item is expired', () => {
 			const key = 'key1';
 			const value = 'value1';
 			cache.setCacheItem(key, value);
-			const waitTime = (Math.ceil(ttl/cleanupInterval) + 0.5) * (cleanupInterval);
+			const waitTime = (Math.ceil(ttl / cleanupInterval) + 0.5) * cleanupInterval;
 			jest.advanceTimersByTime(waitTime);
-			expect(strategy.onItemExpired).toHaveBeenCalledWith(expect.objectContaining({
-				key: key,
-				item: value,
-				currentSize: 0
-			}));
+			expect(strategy.onItemExpired).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key,
+					item: value,
+					currentSize: 0,
+				})
+			);
 		});
 
 		it('should emit an event when item is evicted', () => {
 			const key = (x: number) => `key${x}`;
 			const value = (x: number) => `value${x}`;
-			for(let i = 1; i <= size + 1; i++) {
+			for (let i = 1; i <= size + 1; i++) {
 				cache.setCacheItem(key(i), value(i));
 			}
-			expect(strategy.onItemEvicted).toHaveBeenCalledWith(expect.objectContaining({
-				key: key(1),
-				item: value(1),
-				currentSize: size - 1
-			}));
+			expect(strategy.onItemEvicted).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key(1),
+					item: value(1),
+					currentSize: size - 1,
+				})
+			);
 		});
 
 		it('should emit an event when item is used', () => {
@@ -246,11 +255,13 @@ describe('Standard Cache', () => {
 			const value = 'value1';
 			cache.setCacheItem(key, value);
 			cache.getFromCache(key);
-			expect(strategy.onItemUsed).toHaveBeenCalledWith(expect.objectContaining({
-				key: key,
-				item: value,
-				currentSize: 1
-			}));
+			expect(strategy.onItemUsed).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key,
+					item: value,
+					currentSize: 1,
+				})
+			);
 		});
 
 		it('should emit an event when cache is cleared', () => {
@@ -259,13 +270,11 @@ describe('Standard Cache', () => {
 			}
 			expect(cache.Size).toBe(size);
 			cache.clearCache();
-			expect(strategy.onCacheCleared).toHaveBeenCalledWith(expect.objectContaining({
-				removedItems: expect.arrayContaining([
-					expect.objectContaining({ value: 'value1', expiry: expect.any(Number) }),
-					expect.objectContaining({ value: 'value2', expiry: expect.any(Number) }),
-					expect.objectContaining({ value: 'value3', expiry: expect.any(Number) })
-				])
-			}));
+			expect(strategy.onCacheCleared).toHaveBeenCalledWith(
+				expect.objectContaining({
+					removedItems: expect.arrayContaining([expect.objectContaining({ value: 'value1', expiry: expect.any(Number) }), expect.objectContaining({ value: 'value2', expiry: expect.any(Number) }), expect.objectContaining({ value: 'value3', expiry: expect.any(Number) })]),
+				})
+			);
 			expect(cache.Size).toBe(0);
 		});
 	});
@@ -274,13 +283,11 @@ describe('Standard Cache', () => {
 		let cache: Cache<string>;
 
 		beforeEach(() => {
-			cache = CreateStandardCache<string>(
-				{
-					maxSize: 50,
-					ttl: 60000,
-					cleanupInterval: 10000,
-				}
-			);
+			cache = CreateStandardCache<string>({
+				maxSize: 50,
+				ttl: 60000,
+				cleanupInterval: 10000,
+			});
 		});
 
 		afterEach(() => {

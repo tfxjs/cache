@@ -39,12 +39,12 @@ export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 		if (value !== null) {
 			const item = this.convertToCacheItem(key, value);
 			this.cache.set(key, item);
-			
+
 			this.emitEvent(CacheEvent.ITEM_FETCHED, {
 				key,
 				item,
 				ttl: this.TimeToLive,
-				currentSize: this.Size
+				currentSize: this.Size,
 			});
 			return value;
 		}

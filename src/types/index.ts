@@ -33,12 +33,12 @@ export type TCacheStrategy<ItemType> = {
 // Events
 
 export enum CacheEvent {
-	ITEM_ADDED = "ITEM_ADDED",
-	ITEM_FETCHED = "ITEM_FETCHED",
-	ITEM_USED = "ITEM_USED",
-	ITEM_EXPIRED = "ITEM_EXPIRED",
-	ITEM_EVICTED = "ITEM_EVICTED",
-	CACHE_CLEARED = "CACHE_CLEARED"
+	ITEM_ADDED = 'ITEM_ADDED',
+	ITEM_FETCHED = 'ITEM_FETCHED',
+	ITEM_USED = 'ITEM_USED',
+	ITEM_EXPIRED = 'ITEM_EXPIRED',
+	ITEM_EVICTED = 'ITEM_EVICTED',
+	CACHE_CLEARED = 'CACHE_CLEARED',
 }
 
 export type ItemAddedEventData<ItemType> = {
@@ -95,14 +95,11 @@ export type CacheEventData<Type extends CacheEvent, ItemType> = {
 
 // Discriminated union of all possible cache events
 export type AnyCacheEventData<ItemType> = {
-	[K in CacheEvent]: { event: K; data: CacheEventPayloadMap<ItemType>[K] }
+	[K in CacheEvent]: { event: K; data: CacheEventPayloadMap<ItemType>[K] };
 }[CacheEvent];
 
 // Helper factory to build correctly typed event objects (optional)
-export const createCacheEvent = <T, E extends CacheEvent>(
-	event: E,
-	data: CacheEventPayloadMap<T>[E]
-): CacheEventData<E, T> => ({ event, data });
+export const createCacheEvent = <T, E extends CacheEvent>(event: E, data: CacheEventPayloadMap<T>[E]): CacheEventData<E, T> => ({ event, data });
 
 export interface OnItemAdded<ItemType> {
 	onItemAdded: (data: ItemAddedEventData<ItemType>) => void;

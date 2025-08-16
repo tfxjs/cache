@@ -1,49 +1,8 @@
-import {
-	CreateStandardCache,
-	CreateStandardLRUCache,
-    CreateFetchableLRUCache
-} from "@src/cache";
+import { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache } from '@src/cache';
 
-import {
-    TCacheOptions,
-    TCacheStrategy,
-    TFetchStrategy,
+import { TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, CacheClearedEventData } from '@src/types';
 
-    OnItemAdded,
-    OnItemFetched,
-    OnItemExpired,
-    OnItemEvicted,
-    OnCacheCleared,
-
-    ItemAddedEventData,
-    ItemFetchedEventData,
-    ItemExpiredEventData,
-    ItemEvictedEventData,
-    CacheClearedEventData
-} from "@src/types";
-
-export {
-    CreateStandardCache,
-    CreateStandardLRUCache,
-    CreateFetchableLRUCache,
-
-    TCacheOptions,
-    TCacheStrategy,
-    TFetchStrategy,
-
-    OnItemAdded,
-    OnItemFetched,
-    OnItemExpired,
-    OnItemEvicted,
-    OnCacheCleared,
-
-    ItemAddedEventData,
-    ItemFetchedEventData,
-    ItemExpiredEventData,
-    ItemEvictedEventData,
-    CacheClearedEventData
-}
-
+export { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache, TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, CacheClearedEventData };
 
 // import BasicFetcher from "./fetchers/BasicFetcher";
 

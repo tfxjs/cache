@@ -97,7 +97,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 		}
 
 		const item = this.getCacheItem(key);
-		if(item !== null) this.emitEvent(CacheEvent.ITEM_USED, { key, item, currentSize: this.Size });
+		if (item !== null) this.emitEvent(CacheEvent.ITEM_USED, { key, item, currentSize: this.Size });
 
 		return item;
 	}
@@ -124,7 +124,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 			key,
 			item,
 			ttl: overrideTTL ?? this.TimeToLive,
-			currentSize: this.Size
+			currentSize: this.Size,
 		});
 	}
 
@@ -170,7 +170,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 		const ttl = overrideTTL !== undefined ? overrideTTL : this.ttl;
 		return {
 			value,
-			expiry: Date.now() + ttl
+			expiry: Date.now() + ttl,
 		};
 	}
 
