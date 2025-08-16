@@ -1,7 +1,7 @@
 {
 	"name": "@tfxjs/cache",
 	"version": "1.0.0",
-	"type": "module",
+    "type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
@@ -13,6 +13,7 @@
 		"dist"
 	],
 	"scripts": {
+		"start": "yarn build && node dist/index.js",
 		"test": "jest",
 		"lint": "eslint \"src/**/*.ts\"",
 		"prettier": "prettier --write .",
