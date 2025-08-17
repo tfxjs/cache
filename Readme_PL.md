@@ -5,15 +5,18 @@
 
 > English version: [`Readme.md`](./Readme.md) and [`docs/en/*`](./docs/en/).
 
-## Krótko
+## Opis
+
 @tfxjs/cache to minimalistyczny rdzeń cache + warstwa rozszerzalności:
-* Limit rozmiaru + wymuszone usuwanie (strategia: Base / LRU / custom)
-* TTL (globalny lub per‑item) + opcjonalny background cleanup
-* Tryb fetchowania braków (`CacheWithFetcher` / fabryki `CreateFetchable*`)
-* Typowane zdarzenia kierowane do hooków w strategii (bez globalnego emittera)
-* Proste API, łatwe do testowania (strategia i fetcher wstrzykiwane)
+
+- Limit rozmiaru + wymuszone usuwanie (strategia: Base / LRU / custom)
+- TTL (globalny lub per‑item) + opcjonalny background cleanup
+- Tryb fetchowania braków (`CacheWithFetcher` / fabryki `CreateFetchable*`)
+- Typowane zdarzenia kierowane do hooków w strategii (bez globalnego emittera)
+- Proste API, łatwe do testowania (strategia i fetcher wstrzykiwane)
 
 ## Instalacja
+
 ```bash
 npm install @tfxjs/cache
 # lub
@@ -21,6 +24,7 @@ yarn add @tfxjs/cache
 ```
 
 ## Szybki przykład
+
 ```ts
 import { CreateStandardLRUCache } from '@tfxjs/cache';
 
@@ -31,11 +35,14 @@ cache.dispose(); // Wyłączenie timerów, w celu ponownego użycia należy utwo
 ```
 
 Fetcher + LRU:
+
 ```ts
 import { CreateFetchableLRUCache, TFetchStrategy } from '@tfxjs/cache';
 
 class UserFetcher implements TFetchStrategy<string> {
-	async fetch(key: string) { return key === 'u:1' ? 'Jan' : null; }
+	async fetch(key: string) {
+		return key === 'u:1' ? 'Jan' : null;
+	}
 }
 
 const cache = CreateFetchableLRUCache<string>({ maxSize: 50, ttl: 20_000 }, new UserFetcher());
@@ -43,16 +50,59 @@ await cache.getOrFetch('u:1');
 ```
 
 ## Dokumentacja
+
 Pełna dokumentacja (opcje, eventy, strategie, fetchery, przykłady) znajduje się w katalogu `docs/`:
 
-| Sekcja | Plik |
-|--------|------|
-| Rdzeń cache (API, opcje, events) | [`docs/pl/Cache.md`](./docs/pl/Cache.md) |
+| Sekcja                                    | Plik                                               |
+| ----------------------------------------- | -------------------------------------------------- |
+| Rdzeń cache (API, opcje, events)          | [`docs/pl/Cache.md`](./docs/pl/Cache.md)           |
 | Strategie (interfejs, hooki, LRU, własne) | [`docs/pl/Strategies.md`](./docs/pl/Strategies.md) |
-| Fetchery (interfejs, przykłady) | [`docs/pl/Fetchers.md`](./docs/pl/Fetchers.md) |
+| Fetchery (interfejs, przykłady)           | [`docs/pl/Fetchers.md`](./docs/pl/Fetchers.md)     |
 
 ## Licencja
+
 MIT © tfxjs
 
 ---
+
+cs/pl/Fetchers.md) |
+
+## Licencja
+
+MIT © tfxjs
+
+---
+
+etchers.md) |
+
+## Licencja
+
+MIT © tfxjs
+
+---
+
+etchers.md) |
+
+## Licencja
+
+MIT © tfxjs
+
+---
+
+etchers.md) |
+
+## Licencja
+
+MIT © tfxjs
+
+---
+
+etchers.md) |
+
+## Licencja
+
+MIT © tfxjs
+
+---
+
 Sugestie / błędy? Otwórz issue lub PR. Miłej zabawy z cache! 🧠
