@@ -1,6 +1,7 @@
 import { Cache } from '@src/base/Cache';
 import { CreateStandardCache } from '@src/cache';
 import BaseStrategy from '@src/strategies/Base.strategy';
+import { TCacheStrategy } from '@src/types';
 
 describe('Standard Cache', () => {
 	const calculateWaitTime = (ttl: number, cleanupInterval: number): number => {
@@ -267,6 +268,7 @@ describe('Standard Cache', () => {
 			jest.spyOn(strategy, 'onItemEvicted');
 			jest.spyOn(strategy, 'onItemUsed');
 			jest.spyOn(strategy, 'onCacheCleared');
+			jest.spyOn(strategy, 'onCacheDisposed');
 			// onItemFetched will be tested in Fetchable tests
 		});
 
@@ -348,6 +350,11 @@ describe('Standard Cache', () => {
 			);
 			expect(cache.Size).toBe(0);
 		});
+
+		it('should emit an event when cache is disposed', () => {
+			cache.dispose();
+			expect(strategy.onCacheDisposed).toHaveBeenCalledWith(expect.objectContaining({}));
+		});
 	});
 
 	describe('cache clear', () => {
@@ -370,6 +377,80 @@ describe('Standard Cache', () => {
 			cache.setCacheItem('key2', 'value2');
 			cache.clearCache();
 			expect(cache.Size).toBe(0);
+		});
+	});
+
+	describe('cache dispose', () => {
+		let cache: Cache<string>;
+		let cacheMemory: Map<string, string>;
+		let strategy: TCacheStrategy<string>;
+
+		beforeEach(() => {
+			strategy = new BaseStrategy<string>();
+			cache = CreateStandardCache<string>(
+				{
+					maxSize: 50,
+					ttl: 60000,
+					cleanupInterval: 10000,
+				},
+				strategy
+			);
+			cacheMemory = (cache as any).cache as Map<string, any>;
+		});
+
+		afterEach(() => {
+			cache.dispose();
+		});
+
+		it('should clear cleanup interval', () => {
+			let interval = (cache as any).cleanup;
+			expect(interval).toBeDefined();
+			expect(interval).not.toBeNull();
+			cache.dispose();
+			interval = (cache as any).cleanup;
+			expect(interval).toBeNull();
+		});
+
+		it('should clear the cache after disposal', () => {
+			jest.spyOn(cacheMemory, 'clear');
+			cache.setCacheItem('key1', 'value1');
+			cache.setCacheItem('key2', 'value2');
+			cache.dispose();
+			expect(cacheMemory.clear).toHaveBeenCalled();
+		});
+
+		it('should not allow to get items after disposal', () => {
+			jest.spyOn(strategy, 'getCacheItem');
+			cache.dispose();
+			cache.getFromCache('key1');
+			expect(strategy.getCacheItem).not.toHaveBeenCalled();
+		});
+
+		it('should not allow to set items after disposal', () => {
+			jest.spyOn(cacheMemory, 'set');
+			cache.dispose();
+			cache.setCacheItem('key1', 'value1');
+			expect(cacheMemory.set).not.toHaveBeenCalled();
+		});
+
+		it('should not allow to clear cache after disposal', () => {
+			jest.spyOn(cacheMemory, 'clear');
+			cache.dispose();
+			// dispose itself calls clear
+			expect(cacheMemory.clear).toHaveBeenCalledTimes(1);
+			cache.clearCache();
+			// clearCache normally calls clear - after disposal it should not be called again
+			expect(cacheMemory.clear).toHaveBeenCalledTimes(1);
+		});
+
+		it('should not allow to dispose cache after disposal (prevent multiple disposals)', () => {
+			jest.spyOn(cacheMemory, 'clear');
+			cache.dispose();
+			// dispose itself calls clear
+			expect(cacheMemory.clear).toHaveBeenCalledTimes(1);
+			cache.dispose();
+			// dispose normally calls clear - after disposal it should not be called again
+			expect(cacheMemory.clear).toHaveBeenCalledTimes(1);
 		});
 	});
 });
