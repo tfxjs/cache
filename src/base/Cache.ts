@@ -154,7 +154,10 @@ export class Cache<ItemType> implements TCache<ItemType> {
 			clearInterval(this.cleanup);
 			this.cleanup = null;
 		}
+		this.cache.clear();
+
 		this.disposed = true;
+		this.emitEvent(CacheEvent.CACHE_DISPOSED, {});
 	}
 
 	// Private & Protected - internal use
@@ -244,6 +247,11 @@ export class Cache<ItemType> implements TCache<ItemType> {
 			case CacheEvent.CACHE_CLEARED: {
 				const handler = (this.strategy as unknown as { onCacheCleared?: (d: CacheEventPayloadMap<ItemType>[typeof CacheEvent.CACHE_CLEARED]) => void }).onCacheCleared;
 				handler?.(data as CacheEventPayloadMap<ItemType>[typeof CacheEvent.CACHE_CLEARED]);
+				break;
+			}
+			case CacheEvent.CACHE_DISPOSED: {
+				const handler = (this.strategy as unknown as { onCacheDisposed?: (d: CacheEventPayloadMap<ItemType>[typeof CacheEvent.CACHE_DISPOSED]) => void }).onCacheDisposed;
+				handler?.(data as CacheEventPayloadMap<ItemType>[typeof CacheEvent.CACHE_DISPOSED]);
 				break;
 			}
 			default:

@@ -39,6 +39,7 @@ export enum CacheEvent {
 	ITEM_EXPIRED = 'ITEM_EXPIRED',
 	ITEM_EVICTED = 'ITEM_EVICTED',
 	CACHE_CLEARED = 'CACHE_CLEARED',
+	CACHE_DISPOSED = 'CACHE_DISPOSED',
 }
 
 export type ItemAddedEventData<ItemType> = {
@@ -77,6 +78,8 @@ export type CacheClearedEventData<ItemType> = {
 	removedItems: Array<TCacheItem<ItemType>>;
 };
 
+export type CacheDisposedEventData<ItemType> = {};
+
 // Mapping from CacheEvent discriminator to its concrete payload shape
 export interface CacheEventPayloadMap<ItemType> {
 	[CacheEvent.ITEM_ADDED]: ItemAddedEventData<ItemType>;
@@ -85,6 +88,7 @@ export interface CacheEventPayloadMap<ItemType> {
 	[CacheEvent.ITEM_EXPIRED]: ItemExpiredEventData<ItemType>;
 	[CacheEvent.ITEM_EVICTED]: ItemEvictedEventData<ItemType>;
 	[CacheEvent.CACHE_CLEARED]: CacheClearedEventData<ItemType>;
+	[CacheEvent.CACHE_DISPOSED]: CacheDisposedEventData<ItemType>;
 }
 
 // Single event type for a specific CacheEvent value
@@ -123,4 +127,8 @@ export interface OnItemEvicted<ItemType> {
 
 export interface OnCacheCleared<ItemType> {
 	onCacheCleared: (data: CacheClearedEventData<ItemType>) => void;
+}
+
+export interface OnCacheDisposed<ItemType> {
+	onCacheDisposed: (data: CacheDisposedEventData<ItemType>) => void;
 }
