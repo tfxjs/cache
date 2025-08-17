@@ -134,9 +134,11 @@ describe('Standard Cache', () => {
 		});
 
 		it('should invoke evict when max size exceeded', async () => {
+			const evictSpy = jest.spyOn(cache as any, 'evict');
 			for (let i = 1; i <= 55; i++) {
 				cache.setCacheItem(`key${i}`, `value${i}`);
 			}
+			expect(evictSpy).toHaveBeenCalledTimes(5);
 			expect(strategy['getItemKeyToEvict']).toHaveBeenCalledTimes(5);
 		});
 	});
