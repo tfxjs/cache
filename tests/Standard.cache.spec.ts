@@ -3,6 +3,15 @@ import { CreateStandardCache } from '@src/cache';
 import BaseStrategy from '@src/strategies/Base.strategy';
 
 describe('Standard Cache', () => {
+	const calculateWaitTime = (ttl: number, cleanupInterval: number): number => {
+		return (
+			(Math.ceil(ttl / cleanupInterval) + // Round up to the nearest interval
+				0.5 + // Add half an interval
+				(ttl % cleanupInterval === 0 ? 1 : 0)) * // Add an extra interval if ttl is a multiple of cleanupInterval
+			cleanupInterval
+		);
+	};
+
 	describe('constructor', () => {
 		describe('correct initialization', () => {
 			it('should initialize with correct options', () => {
@@ -131,22 +140,63 @@ describe('Standard Cache', () => {
 		});
 	});
 
-	describe('cache item ttl/expiration time', () => {
+	describe('cache timers', () => {
 		let cache: Cache<string>;
 		let strategy: BaseStrategy<string>;
+		let cleanupInterval: number;
+		let ttl: number;
 
 		beforeEach(() => {
+			jest.useFakeTimers();
+
+			cleanupInterval = 10000;
+			ttl = 60000;
 			strategy = new BaseStrategy<string>();
 			cache = CreateStandardCache<string>(
 				{
 					maxSize: 50,
-					ttl: 60000,
-					cleanupInterval: 10000,
+					ttl,
+					cleanupInterval,
 				},
 				strategy
 			);
+		});
 
-			jest.spyOn(strategy, 'getItemKeyToEvict');
+		afterEach(() => {
+			cache.dispose();
+		});
+
+		it('should call removeExpiredItems on interval tick', () => {
+			const removeSpy = jest.spyOn(cache as any, 'removeExpiredItems');
+			expect(removeSpy).not.toHaveBeenCalled();
+			const clearCycles = 3;
+			const clearCyclesOffset = 0.5;
+			const waitTime = cleanupInterval * (clearCycles + clearCyclesOffset);
+			jest.advanceTimersByTime(waitTime);
+			expect(removeSpy).toHaveBeenCalledTimes(clearCycles);
+		});
+	});
+
+	describe('cache item ttl/expiration time', () => {
+		let cache: Cache<string>;
+		let strategy: BaseStrategy<string>;
+		let ttl: number;
+		let cleanupInterval: number;
+
+		beforeEach(() => {
+			jest.useFakeTimers();
+
+			ttl = 60000;
+			cleanupInterval = 10000;
+			strategy = new BaseStrategy<string>();
+			cache = CreateStandardCache<string>(
+				{
+					maxSize: 50,
+					ttl,
+					cleanupInterval,
+				},
+				strategy
+			);
 		});
 
 		afterEach(() => {
@@ -157,7 +207,6 @@ describe('Standard Cache', () => {
 			const key = 'key1';
 			const value = 'value1';
 			const currentTime = Date.now();
-			const ttl = 2000;
 			const cacheItem = cache['convertToCacheItem'](key, value, ttl);
 			expect(cacheItem).toStrictEqual(
 				expect.objectContaining({
@@ -165,6 +214,28 @@ describe('Standard Cache', () => {
 					expiry: expect.closeTo(currentTime + ttl),
 				})
 			);
+		});
+
+		it('should not return the item if expired', () => {
+			const key = 'key1';
+			const value = 'value1';
+			const waitTime = ttl + 1000;
+			cache.setCacheItem(key, value);
+			jest.advanceTimersByTime(waitTime);
+			expect(cache.getFromCache(key)).toBeNull();
+		});
+
+		it('should remove expired items', () => {
+			const key = 'key1';
+			const value = 'value1';
+			const waitTime = calculateWaitTime(ttl, cleanupInterval);
+			const cacheMemory: Map<string, any> = (cache as any).cache;
+			cache.setCacheItem(key, value);
+			expect(cacheMemory.has(key)).toBe(true);
+			expect(cacheMemory.get(key)).toEqual(expect.objectContaining({ value }));
+			jest.advanceTimersByTime(waitTime);
+			expect(cacheMemory.has(key)).toBe(false);
+			expect(cacheMemory.get(key)).not.toEqual(expect.objectContaining({ value }));
 		});
 	});
 
@@ -224,7 +295,7 @@ describe('Standard Cache', () => {
 			const key = 'key1';
 			const value = 'value1';
 			cache.setCacheItem(key, value);
-			const waitTime = (Math.ceil(ttl / cleanupInterval) + 0.5) * cleanupInterval;
+			const waitTime = calculateWaitTime(ttl, cleanupInterval);
 			jest.advanceTimersByTime(waitTime);
 			expect(strategy.onItemExpired).toHaveBeenCalledWith(
 				expect.objectContaining({
