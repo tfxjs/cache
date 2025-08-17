@@ -380,6 +380,16 @@ describe('Standard Cache', () => {
 			cache.clearCache();
 			expect(cache.Size).toBe(0);
 		});
+
+		it('should reset the timers', () => {
+			const before = (cache as any).cleanup;
+			expect(before).toBeDefined();
+			cache.clearCache();
+			const after = (cache as any).cleanup;
+			expect(after).toBeDefined();
+			// Should create a new interval instance
+			expect(after).not.toBe(before);
+		});
 	});
 
 	describe('cache dispose', () => {
