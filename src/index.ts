@@ -1,8 +1,8 @@
 import { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache } from '@src/cache';
 
-import { TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, CacheClearedEventData } from '@src/types';
+import { TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, CacheClearedEventData, TCacheItem, TCache } from '@src/types';
 
-export { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache, TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, CacheClearedEventData };
+export { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache, TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, CacheClearedEventData, TCacheItem, TCache };
 
 // import BasicFetcher from "./fetchers/BasicFetcher";
 
