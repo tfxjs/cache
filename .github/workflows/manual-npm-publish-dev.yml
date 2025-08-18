@@ -1,0 +1,56 @@
+name: Manual Publish Development to npm
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+
+      - name: Clean cache
+        run: npm cache clean --force
+
+      - name: Install dependencies
+        run: npm install
+  
+      - name: Build project (TypeScript)
+        run: npm run build
+  
+      - name: Get production version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Get latest dev version
+        id: get-dev-version
+        run: |
+          LATEST_TAG=$(git tag --list "${VERSION}-dev.*" | sort -V | tail -n 1)
+          if [[ -z "$LATEST_TAG" ]]; then
+            echo "DEV_VERSION=0" >> $GITHUB_ENV
+          else
+            DEV_VERSION=$(echo $LATEST_TAG | awk -F '.' '{print $NF}')
+            echo "DEV_VERSION=$((DEV_VERSION + 1))" >> $GITHUB_ENV
+          fi
+
+      - name: Set new dev version
+        run: npm version "${VERSION}-dev.${DEV_VERSION}" --no-git-tag-version
+
+      - name: Publish package
+        run: npm publish --tag dev --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub tag
+        run: git tag "${VERSION}-dev.${DEV_VERSION}" && git push origin "${VERSION}-dev.${DEV_VERSION}"

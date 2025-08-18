@@ -1,0 +1,57 @@
+name: General Issue
+description: Report a general issue, suggestion, or feedback.
+title: "[General]: "
+labels: ["general"]
+# projects: ["kajahl/4"]
+assignees:
+  - kajahl
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 📝 General Issue  
+        Use this form for anything that doesn't fit into bugs, feature requests, or questions.  
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Type of Issue
+      description: What kind of issue are you reporting?
+      options:
+        - Documentation Improvement
+        - Code Refactoring Suggestion
+        - Performance Optimization
+        - Security Concern
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-details
+    attributes:
+      label: Details
+      description: Provide a clear and concise description of the issue.
+      placeholder: "Describe the issue in detail..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution (if applicable)
+      description: If you have an idea for a fix or improvement, describe it here.
+      placeholder: "I think this could be solved by..."
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: Specify details like OS, browser, Node.js version, etc., if applicable.
+      placeholder: "e.g., Windows 11, Node.js 18.12.1, Chrome 120"
+
+  - type: input
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any extra details or related issues?
+      placeholder: "e.g., Related issue #123"
