@@ -1,56 +1,56 @@
 name: Question
 description: Ask a question about the project.
-title: "[Question]: "
-labels: ["question"]
+title: '[Question]: '
+labels: ['question']
 # projects: ["kajahl/4"]
 assignees:
-  - kajahl
+    - kajahl
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ### ❓ Got a question?  
-        Please describe your question as clearly as possible. The more details you provide, the easier it will be for us to help! 🚀  
+    - type: markdown
+      attributes:
+          value: |
+              ### ❓ Got a question?  
+              Please describe your question as clearly as possible. The more details you provide, the easier it will be for us to help! 🚀
 
-  - type: dropdown
-    id: question-type
-    attributes:
-      label: Type of Question
-      description: Select the category that best describes your question.
-      options:
-        - General
-        - About the code
-        - About the documentation
-        - Other
-    validations:
-      required: true
+    - type: dropdown
+      id: question-type
+      attributes:
+          label: Type of Question
+          description: Select the category that best describes your question.
+          options:
+              - General
+              - About the code
+              - About the documentation
+              - Other
+      validations:
+          required: true
 
-  - type: textarea
-    id: question-details
-    attributes:
-      label: Question
-      description: Clearly describe your question or concern.
-      placeholder: "I would like to know more about..."
-    validations:
-      required: true
+    - type: textarea
+      id: question-details
+      attributes:
+          label: Question
+          description: Clearly describe your question or concern.
+          placeholder: 'I would like to know more about...'
+      validations:
+          required: true
 
-  - type: textarea
-    id: attempted-solutions
-    attributes:
-      label: What have you tried?
-      description: If applicable, list what you’ve already tried to solve the issue.
-      placeholder: "I searched the documentation and tried..."
-      
-  - type: textarea
-    id: environment
-    attributes:
-      label: Environment (if relevant)
-      description: If your question is technical, specify your environment (OS, browser, Node.js version, etc.).
-      placeholder: "e.g., Windows 11, Node.js 18.12.1, Chrome 120"
+    - type: textarea
+      id: attempted-solutions
+      attributes:
+          label: What have you tried?
+          description: If applicable, list what you’ve already tried to solve the issue.
+          placeholder: 'I searched the documentation and tried...'
 
-  - type: input
-    id: additional-context
-    attributes:
-      label: Additional Context
-      description: Any other relevant information?
-      placeholder: "e.g., Related issue #123"
+    - type: textarea
+      id: environment
+      attributes:
+          label: Environment (if relevant)
+          description: If your question is technical, specify your environment (OS, browser, Node.js version, etc.).
+          placeholder: 'e.g., Windows 11, Node.js 18.12.1, Chrome 120'
+
+    - type: input
+      id: additional-context
+      attributes:
+          label: Additional Context
+          description: Any other relevant information?
+          placeholder: 'e.g., Related issue #123'
