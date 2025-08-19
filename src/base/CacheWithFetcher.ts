@@ -24,8 +24,10 @@ export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 		if (item !== null) {
 			return item;
 		}
-		return this.fetchItem(key);
+		return this.getOrFetchRequest(key);
 	}
+
+	// Private
 
 	/**
 	 * Fetch an item from the source
@@ -50,5 +52,31 @@ export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 		}
 
 		return null;
+	}
+
+	// Private - Request map (prevent duplicate requests)
+
+	readonly requestMap: Map<string, Promise<ItemType | null>> = new Map();
+
+	private setRequest(key: string, request: Promise<ItemType | null>): void {
+		this.requestMap.set(key, request);
+		request.finally(() => {
+			this.requestMap.delete(key);
+		});
+	}
+
+	private getRequest(key: string): Promise<ItemType | null> | undefined {
+		return this.requestMap.get(key);
+	}
+
+	private getOrFetchRequest(key: string): Promise<ItemType | null> {
+		const existingRequest = this.getRequest(key);
+		if (existingRequest) {
+			return existingRequest;
+		}
+
+		const newRequest = this.fetchItem(key);
+		this.setRequest(key, newRequest);
+		return newRequest;
 	}
 }

@@ -14,8 +14,8 @@ describe('Fetchable Cache', () => {
 		cache = CreateFetchableCache<string>(
 			{
 				maxSize: 50,
-				ttl: 60,
-				cleanupInterval: 10,
+				ttl: 6000,
+				cleanupInterval: 1000,
 			},
 			strategy,
 			fetcher
@@ -31,31 +31,9 @@ describe('Fetchable Cache', () => {
 	});
 
 	describe('cache events', () => {
-		let strategy: BaseStrategy<string>;
-		let fetcher: BasicFetcher<string>;
-		let cache: CacheWithFetcher<string>;
-
-		beforeEach(() => {
-			strategy = new BaseStrategy<string>();
-			fetcher = new BasicFetcher<string>();
-			cache = CreateFetchableCache<string>(
-				{
-					maxSize: 3,
-					ttl: 2000,
-					cleanupInterval: 3000,
-				},
-				strategy,
-				fetcher
-			);
-
-			jest.spyOn(strategy, 'onItemFetched');
-		});
-
-		afterEach(() => {
-			cache.dispose();
-		});
-
 		it('should emit an event when an item is fetched', async () => {
+			jest.spyOn(strategy, 'onItemFetched');
+
 			const key = 'key1';
 			const value = 'value1';
 			fetcher.setReturnValue(key, value);
@@ -96,6 +74,67 @@ describe('Fetchable Cache', () => {
 			expect(value1a).toBe('value1');
 			expect(value1b).toBe('value1');
 			expect(fetcher['fetch']).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe('prevent duplicate requests', () => {
+		it('should send only one fetch request for the same key', async () => {
+			jest.spyOn(cache, 'getOrFetch');
+			jest.spyOn(fetcher, 'fetch');
+
+			jest.useFakeTimers();
+			const timeout = 1000;
+
+			fetcher.setReturnValue('key1', 'value1', timeout);
+			fetcher.setReturnValue('key2', 'value2', timeout);
+
+			const fetchPromise1 = cache.getOrFetch('key1');
+			jest.advanceTimersByTime(timeout / 2);
+			await Promise.resolve();
+
+			const fetchPromise2 = cache.getOrFetch('key2');
+			jest.advanceTimersByTime(timeout);
+			await Promise.resolve();
+
+			jest.runOnlyPendingTimers();
+			await Promise.resolve();
+
+			expect(await fetchPromise1).toBe('value1');
+			expect(await fetchPromise2).toBe('value2');
+
+			expect(cache.getOrFetch).toHaveBeenCalledTimes(2);
+			expect(fetcher['fetch']).toHaveBeenCalledTimes(2);
+
+			jest.useRealTimers();
+		});
+
+		it('should not send duplicate fetch requests for the same key', async () => {
+			jest.spyOn(cache, 'getOrFetch');
+			jest.spyOn(fetcher, 'fetch');
+
+			jest.useFakeTimers();
+			const timeout = 1000;
+
+			fetcher.setReturnValue('key1', 'value1', timeout);
+
+			const fetchPromise1 = cache.getOrFetch('key1');
+			jest.advanceTimersByTime(timeout / 2); // Advance fetcher setTimeout (fetch method)
+			await Promise.resolve(); // Next tick for microtask (set request to requestMap @ cache)
+			const fetchPromise2 = cache.getOrFetch('key1');
+
+			jest.advanceTimersByTime(timeout); // As same as above
+			await Promise.resolve(); // As same as above
+
+			jest.runOnlyPendingTimers();
+			await Promise.resolve();
+
+			expect(await fetchPromise1).toBe('value1');
+			expect(await fetchPromise2).toBe('value1');
+
+			expect(cache.getOrFetch).toHaveBeenCalledTimes(2);
+			expect(fetcher['fetch']).toHaveBeenCalledTimes(1);
+
+			jest.useRealTimers();
 		});
 	});
 });
