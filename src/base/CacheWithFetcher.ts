@@ -35,7 +35,7 @@ export class CacheWithFetcher<ItemType> extends Cache<ItemType> {
 	 * @returns Fetched item or null if not found
 	 */
 	private async fetchItem(key: string): Promise<ItemType | null> {
-		if (this.Disposed) return null;
+		if (this.IsDisposed) return null;
 
 		const value = await this.fetchStrategy.fetch(key);
 		if (value !== null) {

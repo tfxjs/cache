@@ -49,7 +49,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 		return this.cleanupInterval;
 	}
 
-	get Disposed(): boolean {
+	get IsDisposed(): boolean {
 		return this.disposed;
 	}
 
@@ -90,7 +90,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	 * @returns Cache item or null if not found or expired
 	 */
 	public getFromCache(key: string): ItemType | null {
-		if (this.disposed) return null;
+		if (this.IsDisposed) return null;
 
 		if (this.isExpired(key)) {
 			this.cache.delete(key);
@@ -110,7 +110,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	 * @returns
 	 */
 	public setCacheItem(key: string, value: ItemType, overrideTTL: number | undefined = undefined): void {
-		if (this.disposed) return;
+		if (this.IsDisposed) return;
 
 		// Evict the item (defined by strategy) if the cache is full
 		if (this.cache.size >= this.maxSize) {
@@ -129,7 +129,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	}
 
 	public removeFromCache(key: string): void {
-		if (this.Disposed) return;
+		if (this.IsDisposed) return;
 
 		const item = this.cache.get(key);
 		if (item) {
@@ -143,7 +143,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	 * @returns
 	 */
 	public clearCache(): void {
-		if (this.disposed) return;
+		if (this.IsDisposed) return;
 
 		const removedItems = Array.from(this.cache.values());
 		this.cache.clear();
@@ -158,7 +158,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	 * @returns
 	 */
 	public dispose(): void {
-		if (this.disposed) return;
+		if (this.IsDisposed) return;
 
 		if (this.cleanup) {
 			clearInterval(this.cleanup);
@@ -202,7 +202,7 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	 * @returns
 	 */
 	protected removeExpiredItems(): void {
-		if (this.disposed) return;
+		if (this.IsDisposed) return;
 
 		for (const [key, _] of this.cache.entries()) {
 			const item = this.cache.get(key);

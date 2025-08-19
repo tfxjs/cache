@@ -434,6 +434,12 @@ describe('Standard Cache', () => {
 			cache.dispose();
 		});
 
+		it('should set dispose to true', () => {
+			expect(cache.IsDisposed).toBe(false);
+			cache.dispose();
+			expect(cache.IsDisposed).toBe(true);
+		});
+
 		it('should clear cleanup interval', () => {
 			let interval = (cache as any).cleanup;
 			expect(interval).toBeDefined();
