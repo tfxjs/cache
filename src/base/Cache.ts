@@ -112,6 +112,20 @@ export class Cache<ItemType> implements TCache<ItemType> {
 	public setCacheItem(key: string, value: ItemType, overrideTTL: number | undefined = undefined): void {
 		if (this.IsDisposed) return;
 
+		const existingItem = this.cache.get(key);
+		if (existingItem !== undefined && !this.isExpired(key)) {
+			// Existing + Not expired => Update
+			const updatedItem = this.convertToCacheItem(key, value, overrideTTL);
+			this.cache.set(key, updatedItem);
+			this.emitEvent(CacheEvent.ITEM_UPDATED, {
+				key,
+				oldItem: existingItem,
+				newItem: updatedItem,
+				ttl: overrideTTL ?? this.TimeToLive,
+			});
+			return;
+		}
+
 		// Evict the item (defined by strategy) if the cache is full
 		if (this.cache.size >= this.maxSize) {
 			this.evict();
@@ -232,6 +246,11 @@ export class Cache<ItemType> implements TCache<ItemType> {
 			case CacheEvent.ITEM_ADDED: {
 				const handler = (this.strategy as unknown as { onItemAdded?: (d: CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_ADDED]) => void }).onItemAdded;
 				handler?.(data as CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_ADDED]);
+				break;
+			}
+			case CacheEvent.ITEM_UPDATED: {
+				const handler = (this.strategy as unknown as { onItemUpdated?: (d: CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_UPDATED]) => void }).onItemUpdated;
+				handler?.(data as CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_UPDATED]);
 				break;
 			}
 			case CacheEvent.ITEM_EVICTED: {

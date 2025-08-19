@@ -107,12 +107,16 @@ describe('Standard Cache', () => {
 	describe('cache size', () => {
 		let cache: Cache<string>;
 		let strategy: BaseStrategy<string>;
+		let maxSize: number;
+		let additionalItems: number;
 
 		beforeEach(() => {
+			maxSize = 10;
+			additionalItems = 5;
 			strategy = new BaseStrategy<string>();
 			cache = CreateStandardCache<string>(
 				{
-					maxSize: 50,
+					maxSize: maxSize,
 					ttl: 60000,
 					cleanupInterval: 10000,
 				},
@@ -127,19 +131,43 @@ describe('Standard Cache', () => {
 		});
 
 		it('should not exceed max size', async () => {
-			for (let i = 1; i <= 55; i++) {
+			for (let i = 1; i <= maxSize + additionalItems; i++) {
 				cache.setCacheItem(`key${i}`, `value${i}`);
 			}
-			expect(cache.Size).toBe(50);
+			expect(cache.Size).toBe(maxSize);
 		});
 
 		it('should invoke evict when max size exceeded', async () => {
 			const evictSpy = jest.spyOn(cache as any, 'evict');
-			for (let i = 1; i <= 55; i++) {
+			for (let i = 1; i <= maxSize + additionalItems; i++) {
 				cache.setCacheItem(`key${i}`, `value${i}`);
 			}
-			expect(evictSpy).toHaveBeenCalledTimes(5);
-			expect(strategy['getItemKeyToEvict']).toHaveBeenCalledTimes(5);
+			expect(evictSpy).toHaveBeenCalledTimes(additionalItems);
+			expect(strategy['getItemKeyToEvict']).toHaveBeenCalledTimes(additionalItems);
+		});
+
+		it('should not evict when max size exceeded and existing item is updated', async () => {
+			const evictSpy = jest.spyOn(cache as any, 'evict');
+			for (let i = 1; i <= maxSize; i++) {
+				cache.setCacheItem(`key${i}`, `value${i}`);
+			}
+			expect(cache.Size).toBe(maxSize);
+			expect(evictSpy).not.toHaveBeenCalled();
+
+			cache.setCacheItem(`key1`, `value1_updated`);
+			expect(cache.Size).toBe(maxSize);
+			expect(evictSpy).not.toHaveBeenCalled();
+			expect(strategy['getItemKeyToEvict']).not.toHaveBeenCalled();
+
+			cache.setCacheItem(`key_not_existing`, `not_existing_value`);
+			expect(cache.Size).toBe(maxSize);
+			expect(evictSpy).toHaveBeenCalledTimes(1);
+			expect(strategy['getItemKeyToEvict']).toHaveBeenCalledTimes(1);
+
+			cache.setCacheItem(`key_not_existing`, `new_not_existing_value`);
+			expect(cache.Size).toBe(maxSize);
+			expect(evictSpy).toHaveBeenCalledTimes(1);
+			expect(strategy['getItemKeyToEvict']).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -266,6 +294,7 @@ describe('Standard Cache', () => {
 			);
 
 			jest.spyOn(strategy, 'onItemAdded');
+			jest.spyOn(strategy, 'onItemUpdated');
 			jest.spyOn(strategy, 'onItemExpired');
 			jest.spyOn(strategy, 'onItemEvicted');
 			jest.spyOn(strategy, 'onItemUsed');
@@ -292,6 +321,28 @@ describe('Standard Cache', () => {
 						value: value,
 						expiry: expect.any(Number),
 					}),
+				})
+			);
+		});
+
+		it('should emit an event when item is updated', () => {
+			const key = 'key1';
+			const value = 'value1';
+			const newValue = 'value1_updated';
+			cache.setCacheItem(key, value);
+			cache.setCacheItem(key, newValue);
+			expect(strategy.onItemUpdated).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key,
+					oldItem: expect.objectContaining({
+						value: value,
+						expiry: expect.any(Number),
+					}),
+					newItem: expect.objectContaining({
+						value: newValue,
+						expiry: expect.any(Number),
+					}),
+					ttl: ttl,
 				})
 			);
 		});

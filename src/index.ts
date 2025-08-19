@@ -1,8 +1,8 @@
 import { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache } from '@src/cache';
 
-import { TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnItemRemoved, OnItemUsed, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, ItemRemovedEventData, ItemUsedEventData, CacheClearedEventData, TCacheItem, TCache } from '@src/types';
+import { TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemUpdated, OnCacheDisposed, OnItemFetched, OnItemExpired, OnItemEvicted, OnItemRemoved, OnItemUsed, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, ItemRemovedEventData, CacheDisposedEventData, ItemUsedEventData, CacheClearedEventData, TCacheItem, TCache, ItemUpdatedEventData } from '@src/types';
 
-export { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache, TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemFetched, OnItemExpired, OnItemEvicted, OnItemRemoved, OnItemUsed, OnCacheCleared, ItemAddedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, ItemRemovedEventData, ItemUsedEventData, CacheClearedEventData, TCacheItem, TCache };
+export { CreateStandardCache, CreateStandardLRUCache, CreateFetchableLRUCache, TCacheOptions, TCacheStrategy, TFetchStrategy, OnItemAdded, OnItemUpdated, OnCacheDisposed, OnItemFetched, OnItemExpired, OnItemEvicted, OnItemRemoved, OnItemUsed, OnCacheCleared, ItemAddedEventData, ItemUpdatedEventData, ItemFetchedEventData, ItemExpiredEventData, ItemEvictedEventData, ItemRemovedEventData, ItemUsedEventData, CacheClearedEventData, CacheDisposedEventData, TCacheItem, TCache };
 
 // import BasicFetcher from "./fetchers/BasicFetcher";
 

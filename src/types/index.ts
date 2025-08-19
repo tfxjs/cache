@@ -34,6 +34,7 @@ export type TCacheStrategy<ItemType> = {
 
 export enum CacheEvent {
 	ITEM_ADDED = 'ITEM_ADDED',
+	ITEM_UPDATED = 'ITEM_UPDATED',
 	ITEM_FETCHED = 'ITEM_FETCHED',
 	ITEM_USED = 'ITEM_USED',
 	ITEM_EXPIRED = 'ITEM_EXPIRED',
@@ -48,6 +49,13 @@ export type ItemAddedEventData<ItemType> = {
 	item: TCacheItem<ItemType>;
 	ttl: number;
 	currentSize: number;
+};
+
+export type ItemUpdatedEventData<ItemType> = {
+	key: string;
+	oldItem: TCacheItem<ItemType>;
+	newItem: TCacheItem<ItemType>;
+	ttl: number;
 };
 
 export type ItemFetchedEventData<ItemType> = {
@@ -90,6 +98,7 @@ export type CacheDisposedEventData<ItemType> = {};
 // Mapping from CacheEvent discriminator to its concrete payload shape
 export interface CacheEventPayloadMap<ItemType> {
 	[CacheEvent.ITEM_ADDED]: ItemAddedEventData<ItemType>;
+	[CacheEvent.ITEM_UPDATED]: ItemUpdatedEventData<ItemType>;
 	[CacheEvent.ITEM_FETCHED]: ItemFetchedEventData<ItemType>;
 	[CacheEvent.ITEM_USED]: ItemUsedEventData<ItemType>;
 	[CacheEvent.ITEM_EXPIRED]: ItemExpiredEventData<ItemType>;
@@ -115,6 +124,10 @@ export const createCacheEvent = <T, E extends CacheEvent>(event: E, data: CacheE
 
 export interface OnItemAdded<ItemType> {
 	onItemAdded: (data: ItemAddedEventData<ItemType>) => void;
+}
+
+export interface OnItemUpdated<ItemType> {
+	onItemUpdated: (data: ItemUpdatedEventData<ItemType>) => void;
 }
 
 export interface OnItemFetched<ItemType> {
