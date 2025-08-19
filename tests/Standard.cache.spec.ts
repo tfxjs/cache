@@ -269,6 +269,7 @@ describe('Standard Cache', () => {
 			jest.spyOn(strategy, 'onItemExpired');
 			jest.spyOn(strategy, 'onItemEvicted');
 			jest.spyOn(strategy, 'onItemUsed');
+			jest.spyOn(strategy, 'onItemRemoved');
 			jest.spyOn(strategy, 'onCacheCleared');
 			jest.spyOn(strategy, 'onCacheDisposed');
 			// onItemFetched will be tested in Fetchable tests
@@ -337,6 +338,25 @@ describe('Standard Cache', () => {
 					currentSize: 1,
 				})
 			);
+		});
+
+		it('should emit an event when item is removed', () => {
+			const key = 'key1';
+			const value = 'value1';
+			cache.setCacheItem(key, value);
+			cache.setCacheItem('key2', 'value2');
+			expect(cache.Size).toBe(2);
+			cache.removeFromCache(key);
+			expect(strategy.onItemRemoved).toHaveBeenCalledWith(
+				expect.objectContaining({
+					key: key,
+					item: value,
+					currentSize: 1,
+				})
+			);
+			expect(cache.Size).toBe(1);
+			expect(cache.getFromCache(key)).toBeNull();
+			expect(cache.getFromCache('key2')).toBe('value2');
 		});
 
 		it('should emit an event when cache is cleared', () => {

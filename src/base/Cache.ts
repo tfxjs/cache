@@ -128,6 +128,16 @@ export class Cache<ItemType> implements TCache<ItemType> {
 		});
 	}
 
+	public removeFromCache(key: string): void {
+		if (this.Disposed) return;
+
+		const item = this.cache.get(key);
+		if (item) {
+			this.cache.delete(key);
+			this.emitEvent(CacheEvent.ITEM_REMOVED, { key, item: item.value, currentSize: this.Size });
+		}
+	}
+
 	/**
 	 * Clear the cache
 	 * @returns
@@ -242,6 +252,11 @@ export class Cache<ItemType> implements TCache<ItemType> {
 			case CacheEvent.ITEM_USED: {
 				const handler = (this.strategy as unknown as { onItemUsed?: (d: CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_USED]) => void }).onItemUsed;
 				handler?.(data as CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_USED]);
+				break;
+			}
+			case CacheEvent.ITEM_REMOVED: {
+				const handler = (this.strategy as unknown as { onItemRemoved?: (d: CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_REMOVED]) => void }).onItemRemoved;
+				handler?.(data as CacheEventPayloadMap<ItemType>[typeof CacheEvent.ITEM_REMOVED]);
 				break;
 			}
 			case CacheEvent.CACHE_CLEARED: {

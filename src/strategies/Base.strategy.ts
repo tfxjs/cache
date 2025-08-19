@@ -1,6 +1,6 @@
-import { CacheClearedEventData, CacheDisposedEventData, CacheMemory, ItemAddedEventData, ItemEvictedEventData, ItemExpiredEventData, ItemFetchedEventData, ItemUsedEventData, OnCacheCleared, OnCacheDisposed, OnItemAdded, OnItemEvicted, OnItemExpired, OnItemFetched, OnItemUsed, TCacheStrategy } from '@src/types';
+import { CacheClearedEventData, CacheDisposedEventData, CacheMemory, ItemAddedEventData, ItemEvictedEventData, ItemExpiredEventData, ItemFetchedEventData, ItemRemovedEventData, ItemUsedEventData, OnCacheCleared, OnCacheDisposed, OnItemAdded, OnItemEvicted, OnItemExpired, OnItemFetched, OnItemRemoved, OnItemUsed, TCacheStrategy } from '@src/types';
 
-export default class BaseStrategy<T> implements TCacheStrategy<T>, OnItemAdded<T>, OnItemFetched<T>, OnItemExpired<T>, OnItemEvicted<T>, OnItemUsed<T>, OnCacheCleared<T>, OnCacheDisposed<T> {
+export default class BaseStrategy<T> implements TCacheStrategy<T>, OnItemAdded<T>, OnItemFetched<T>, OnItemExpired<T>, OnItemEvicted<T>, OnItemUsed<T>, OnCacheCleared<T>, OnCacheDisposed<T>, OnItemRemoved<T> {
 	public getCacheItem(cache: CacheMemory<T>, key: string): T | null {
 		const item = cache.get(key);
 		return item ? item.value : null;
@@ -17,6 +17,7 @@ export default class BaseStrategy<T> implements TCacheStrategy<T>, OnItemAdded<T
 	onItemExpired(data: ItemExpiredEventData<T>): void {}
 	onItemEvicted(data: ItemEvictedEventData<T>): void {}
 	onItemUsed(data: ItemUsedEventData<T>): void {}
+	onItemRemoved(data: ItemRemovedEventData<T>): void {}
 	onCacheCleared(data: CacheClearedEventData<T>): void {}
 	onCacheDisposed(data: CacheDisposedEventData<T>): void {}
 }

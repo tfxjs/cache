@@ -38,6 +38,7 @@ export enum CacheEvent {
 	ITEM_USED = 'ITEM_USED',
 	ITEM_EXPIRED = 'ITEM_EXPIRED',
 	ITEM_EVICTED = 'ITEM_EVICTED',
+	ITEM_REMOVED = 'ITEM_REMOVED',
 	CACHE_CLEARED = 'CACHE_CLEARED',
 	CACHE_DISPOSED = 'CACHE_DISPOSED',
 }
@@ -74,6 +75,12 @@ export type ItemEvictedEventData<ItemType> = {
 	currentSize: number;
 };
 
+export type ItemRemovedEventData<ItemType> = {
+	key: string;
+	item: ItemType;
+	currentSize: number;
+};
+
 export type CacheClearedEventData<ItemType> = {
 	removedItems: Array<TCacheItem<ItemType>>;
 };
@@ -87,6 +94,7 @@ export interface CacheEventPayloadMap<ItemType> {
 	[CacheEvent.ITEM_USED]: ItemUsedEventData<ItemType>;
 	[CacheEvent.ITEM_EXPIRED]: ItemExpiredEventData<ItemType>;
 	[CacheEvent.ITEM_EVICTED]: ItemEvictedEventData<ItemType>;
+	[CacheEvent.ITEM_REMOVED]: ItemRemovedEventData<ItemType>;
 	[CacheEvent.CACHE_CLEARED]: CacheClearedEventData<ItemType>;
 	[CacheEvent.CACHE_DISPOSED]: CacheDisposedEventData<ItemType>;
 }
@@ -123,6 +131,10 @@ export interface OnItemExpired<ItemType> {
 
 export interface OnItemEvicted<ItemType> {
 	onItemEvicted: (data: ItemEvictedEventData<ItemType>) => void;
+}
+
+export interface OnItemRemoved<ItemType> {
+	onItemRemoved: (data: ItemRemovedEventData<ItemType>) => void;
 }
 
 export interface OnCacheCleared<ItemType> {
