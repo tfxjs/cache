@@ -137,4 +137,13 @@ describe('Fetchable Cache', () => {
 			jest.useRealTimers();
 		});
 	});
+
+	describe('cache dispose', () => {
+		it('should not allow to fetch item after disposal', async () => {
+			fetcher.setReturnValue('key1', 'value1', 0);
+			expect(await cache['fetchItem']('key1')).toBe('value1');
+			cache.dispose();
+			expect(await cache['fetchItem']('key1')).toBeNull();
+		});
+	});
 });
