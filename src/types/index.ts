@@ -1,9 +1,9 @@
 export type CacheMemory<ItemType> = Map<string, TCacheItem<ItemType>>;
 
 export type TCacheOptions = {
-	ttl?: number; // Time to live in seconds, 0 means no TTL
-	maxSize?: number; // Maximum number of records
-	cleanupInterval?: number; // Cleanup interval in seconds
+	ttl: number; // Time to live in seconds, 0 means no TTL
+	maxSize: number; // Maximum number of records
+	cleanupInterval: number; // Cleanup interval in seconds
 	debugMode?: boolean; // Enable debug logs
 	customName?: string; // Custom name for the cache instance
 };
